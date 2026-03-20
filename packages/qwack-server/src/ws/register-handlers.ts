@@ -111,7 +111,10 @@ export function registerWsHandlers(repo?: IRepository): void {
 
   // On connect: send event history + plan state, flush buffered prompts if host
   registerConnectionHandler(async (sessionId, userId, ws) => {
-    // Replay buffered events (prompts, collab messages, agent output)
+    const room = getSessionConnections(sessionId)
+    const userConns = room.get(userId)
+    if (userConns && userConns.length > 1) return
+
     const history = await getReplayHistory(sessionId)
     if (history.length > 0) {
       try {

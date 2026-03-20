@@ -1,6 +1,8 @@
 import { Hono } from "hono";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
+import { getSessionConnections } from "../ws/connection-registry";
+import { resolve } from "node:path";
 
 const version = (() => {
   try {
@@ -26,4 +28,14 @@ healthRoutes.get("/health", (c) => {
     version,
     uptime: process.uptime(),
   });
+});
+
+healthRoutes.get("/debug/connections/:sessionId", (c) => {
+  const sid = c.req.param("sessionId")
+  const room = getSessionConnections(sid)
+  const result: Record<string, number> = {}
+  for (const [uid, conns] of room) {
+    result[uid] = conns.length
+  }
+  return c.json({ sessionId: sid, users: result, totalUsers: room.size })
 });
