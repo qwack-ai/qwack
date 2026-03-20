@@ -9,7 +9,17 @@ import { DialogQwackInvite, DialogQwackJoin } from "@tui/ui/dialog-qwack-invite"
 type SlashDialogContext = DialogContext & { input?: string }
 
 const LOGIN_TIMEOUT_MS = 120000
-const OAUTH_CALLBACK_PORT = 9999
+
+async function findAvailablePort(start: number): Promise<number> {
+  for (let port = start; port < start + 100; port++) {
+    try {
+      const server = Bun.serve({ port, fetch: () => new Response() })
+      server.stop()
+      return port
+    } catch {}
+  }
+  return start
+}
 
 export function QwackCommands() {
   const qwack = useQwack()
@@ -125,7 +135,7 @@ export function QwackCommands() {
       onSelect: async (d) => {
         d.clear()
         const server = qwack.serverUrl() ?? "https://qwack.ai"
-        const callbackPort = OAUTH_CALLBACK_PORT
+        const callbackPort = await findAvailablePort(9876)
         const redirectUri = `http://localhost:${callbackPort}/callback`
         show("Opening browser for login...")
 
