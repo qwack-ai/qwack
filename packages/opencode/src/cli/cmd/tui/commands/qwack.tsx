@@ -134,7 +134,7 @@ export function QwackCommands() {
       slash: { name: "qwack login", aliases: ["qlogin"] }, description: "Authenticate with Qwack server",
       onSelect: async (d) => {
         d.clear()
-        const server = qwack.serverUrl() ?? "https://qwack.ai"
+        const server = qwack.serverUrl() ?? "https://api.qwack.ai"
         const callbackPort = await findAvailablePort(9876)
         const redirectUri = `http://localhost:${callbackPort}/callback`
         show("Opening browser for login...")
