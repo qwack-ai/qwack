@@ -36,14 +36,10 @@ export function broadcastToSession(sessionId: string, message: unknown, excludeU
   if (!room) return
   const data = JSON.stringify(message)
   for (const [uid, conns] of room) {
-    if (uid !== excludeUserId) {
-      for (const ws of conns) {
-        try {
-          ws.send(data)
-        } catch {
-          /* disconnected */
-        }
-      }
+    if (uid !== excludeUserId && conns.length > 0) {
+      try {
+        conns[0].send(data)
+      } catch {}
     }
   }
 }
