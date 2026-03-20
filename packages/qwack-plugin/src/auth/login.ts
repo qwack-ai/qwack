@@ -51,9 +51,8 @@ export async function loginFlow(serverUrl: string): Promise<QwackConfig> {
 
             writeConfig(config);
             clearTimeout(timeout);
-            httpServer.stop();
             resolve(config);
-
+            setTimeout(() => httpServer.stop(), 500);
             return Response.redirect("https://qwack.ai", 302);
           } catch (err) {
             clearTimeout(timeout);
