@@ -26,7 +26,7 @@ export const users = sqliteTable("users", {
 export const sessions = sqliteTable("sessions", {
   id: text("id").primaryKey(),
   title: text("title").notNull(),
-  status: text("status", { enum: ["active", "paused", "completed"] })
+  status: text("status", { enum: ["active", "inactive"] })
     .notNull()
     .default("active"),
   creatorId: text("creator_id").references(() => users.id),

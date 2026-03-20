@@ -114,7 +114,7 @@ export function createSessionRoutes(repo: IRepository) {
   sessions.patch("/sessions/:id", async (c) => {
     const userId = c.get("userId")
     const sessionId = c.req.param("id")
-    const body = (await c.req.json()) as { status?: "active" | "paused" | "completed" }
+    const body = (await c.req.json()) as { status?: "active" | "inactive" }
 
     const session = await repo.getSessionById(sessionId)
     if (!session) {

@@ -92,5 +92,18 @@ export function createSessionParticipantRoutes(repo: IRepository) {
     return c.json(participants)
   })
 
+  routes.post("/sessions/:id/leave", async (c) => {
+    const userId = c.get("userId")
+    const sessionId = c.req.param("id")
+
+    const isParticipant = await repo.isParticipant(sessionId, userId)
+    if (!isParticipant) {
+      return c.json({ error: "Not a participant" }, 404)
+    }
+
+    await repo.removeParticipant(sessionId, userId)
+    return c.json({ ok: true })
+  })
+
   return routes
 }

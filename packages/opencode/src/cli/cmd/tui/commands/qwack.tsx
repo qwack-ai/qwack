@@ -103,7 +103,19 @@ export function QwackCommands() {
       enabled: connected(),
       suggested: connected(), slash: { name: "qwack leave", aliases: ["qleave"] },
       description: "Leave the current Qwack session",
-      onSelect: (d) => { qwack.disconnect(); show("Left session"); d.clear() },
+      onSelect: async (d) => {
+        const server = qwack.serverUrl()
+        const token = qwack.authToken()
+        const sid = qwack.sessionId()
+        if (server && token && sid) {
+          fetch(`${server}/api/sessions/${sid}/leave`, {
+            method: "POST", headers: { Authorization: `Bearer ${token}` },
+          }).catch(() => {})
+        }
+        qwack.disconnect()
+        show("Left session")
+        d.clear()
+      },
     },
     {
       title: "Connection status", value: "qwack.status", category: "Qwack",

@@ -263,6 +263,14 @@ export class SqliteRepository implements IRepository {
     return rows.length
   }
 
+  async removeParticipant(sessionId: string, userId: string): Promise<void> {
+    this.db.delete(schema.sessionParticipants)
+      .where(and(
+        eq(schema.sessionParticipants.sessionId, sessionId),
+        eq(schema.sessionParticipants.userId, userId),
+      )).run()
+  }
+
   // ── Events ────────────────────────────────────────────────────────────────
 
   async putEvent(event: EventRecord): Promise<void> {

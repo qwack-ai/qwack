@@ -432,4 +432,105 @@ describe("session participant routes", () => {
     const res = await collabApp.request(jsonReq(`/sessions/${created.id}/kick/${hostId}`, { method: "POST" }))
     expect(res.status).toBe(403)
   })
+
+  test("session status transitions to inactive when last connection leaves", async () => {
+    const { app, repo } = createTestApp()
+
+    const createRes = await app.request(
+      jsonReq("/sessions", { method: "POST", body: JSON.stringify({ title: "Status Test" }) }),
+    )
+    const created = await createRes.json()
+
+    const mockWs = { send: () => {}, close: () => {} } as any
+    getSessionConnections(created.id).set("test-user", [mockWs])
+    setUserMeta(created.id, "test-user", { id: "test-user", name: "Test", role: "host" })
+
+    let session = await repo.getSessionById(created.id)
+    expect(session!.status).toBe("active")
+
+    getSessionConnections(created.id).get("test-user")!.length = 0
+    getSessionConnections(created.id).delete("test-user")
+
+    await repo.updateSession(created.id, { status: "inactive" })
+    session = await repo.getSessionById(created.id)
+    expect(session!.status).toBe("inactive")
+  })
+
+  test("inactive session blocks new joins but allows existing participants", async () => {
+    const { app, repo, db } = createTestApp()
+
+    const createRes = await app.request(
+      jsonReq("/sessions", { method: "POST", body: JSON.stringify({ title: "Security Test" }) }),
+    )
+    const created = await createRes.json()
+
+    const collabId = ulid()
+    db.insert(schema.users).values({ id: collabId, email: "existing@qwack.ai", name: "Existing" }).run()
+    await repo.addParticipant(created.id, collabId, "collaborator")
+
+    const outsiderId = ulid()
+    db.insert(schema.users).values({ id: outsiderId, email: "outsider@qwack.ai", name: "Outsider" }).run()
+
+    const outsiderApp = new Hono<AuthEnv>()
+    outsiderApp.use("*", async (c, next) => { c.set("userId", outsiderId); await next() })
+    outsiderApp.route("/", createSessionParticipantRoutes(repo))
+
+    const blocked = await outsiderApp.request(jsonReq(`/sessions/${created.id}/join`, { method: "POST" }))
+    expect(blocked.status).toBe(403)
+
+    const existingApp = new Hono<AuthEnv>()
+    existingApp.use("*", async (c, next) => { c.set("userId", collabId); await next() })
+    existingApp.route("/", createSessionParticipantRoutes(repo))
+
+    const allowed = await existingApp.request(jsonReq(`/sessions/${created.id}/join`, { method: "POST" }))
+    expect(allowed.status).toBe(409)
+  })
+
+  test("POST /sessions/:id/leave removes participant", async () => {
+    const { app, repo, db } = createTestApp()
+
+    const createRes = await app.request(
+      jsonReq("/sessions", { method: "POST", body: JSON.stringify({ title: "Leave Test" }) }),
+    )
+    const created = await createRes.json()
+
+    const collabId = ulid()
+    db.insert(schema.users).values({ id: collabId, email: "leaver@qwack.ai", name: "Leaver" }).run()
+    await repo.addParticipant(created.id, collabId, "collaborator")
+
+    const before = await repo.getParticipantCount(created.id)
+    expect(before).toBe(2)
+
+    const collabApp = new Hono<AuthEnv>()
+    collabApp.use("*", async (c, next) => { c.set("userId", collabId); await next() })
+    collabApp.route("/", createSessionParticipantRoutes(repo))
+
+    const res = await collabApp.request(jsonReq(`/sessions/${created.id}/leave`, { method: "POST" }))
+    expect(res.status).toBe(200)
+
+    const after = await repo.getParticipantCount(created.id)
+    expect(after).toBe(1)
+
+    const isStill = await repo.isParticipant(created.id, collabId)
+    expect(isStill).toBe(false)
+  })
+
+  test("POST /sessions/:id/leave returns 404 for non-participant", async () => {
+    const { app, repo, db } = createTestApp()
+
+    const createRes = await app.request(
+      jsonReq("/sessions", { method: "POST", body: JSON.stringify({ title: "Leave 404 Test" }) }),
+    )
+    const created = await createRes.json()
+
+    const outsiderId = ulid()
+    db.insert(schema.users).values({ id: outsiderId, email: "nobody@qwack.ai", name: "Nobody" }).run()
+
+    const outsiderApp = new Hono<AuthEnv>()
+    outsiderApp.use("*", async (c, next) => { c.set("userId", outsiderId); await next() })
+    outsiderApp.route("/", createSessionParticipantRoutes(repo))
+
+    const res = await outsiderApp.request(jsonReq(`/sessions/${created.id}/leave`, { method: "POST" }))
+    expect(res.status).toBe(404)
+  })
 })

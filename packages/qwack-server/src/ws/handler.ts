@@ -11,6 +11,7 @@ import {
   removeConnectionWs,
   getHandlerForType,
   getConnectionHandlers,
+  hasActiveConnections,
 } from "./connection-registry"
 import type { WsConn } from "./connection-registry"
 import { cancelGraceTimer, startGraceTimer } from "./host-failover"
@@ -104,6 +105,9 @@ wsApp.get(
         const role = assignRole(sessionId, userId, userName)
 
         if (role === "host") cancelGraceTimer(sessionId)
+        if (_repo) {
+          _repo.updateSession(sessionId, { status: "active" }).catch(() => {})
+        }
 
         ws.send(
           JSON.stringify({
@@ -176,6 +180,9 @@ wsApp.get(
           })
           if (wasHost) {
             startGraceTimer(sessionId)
+          }
+          if (!hasActiveConnections(sessionId) && _repo) {
+            _repo.updateSession(sessionId, { status: "inactive" }).catch(() => {})
           }
         }
       },

@@ -21,7 +21,7 @@ export interface UserRecord {
 export interface SessionRecord {
   id: string
   title: string
-  status: "active" | "paused" | "completed"
+  status: "active" | "inactive"
   creatorId: string | null
   agentAutonomy: string
   permissionModel: string
@@ -55,7 +55,7 @@ export interface EventRecord {
 export interface SessionListItem {
   id: string
   title: string
-  status: "active" | "paused" | "completed"
+  status: "active" | "inactive"
   shortCode: string | null
   creatorId: string | null
   createdAt: number
@@ -84,7 +84,7 @@ export interface CreateSessionInput {
   title: string
   creatorId: string
   shortCode: string
-  status?: "active" | "paused" | "completed"
+  status?: "active" | "inactive"
   agentAutonomy?: string
   permissionModel?: string
   disagreementThreshold?: string
@@ -99,7 +99,7 @@ export interface UpdateUserInput {
 
 export interface UpdateSessionInput {
   title?: string
-  status?: "active" | "paused" | "completed"
+  status?: "active" | "inactive"
   contextSnapshot?: string | null
   planYjsState?: Buffer | null
 }
@@ -166,6 +166,7 @@ export interface IRepository {
 
   /** Count the number of participants in a session. */
   getParticipantCount(sessionId: string): Promise<number>
+  removeParticipant(sessionId: string, userId: string): Promise<void>
 
   // ── Events ──────────────────────────────────────────────────────────────────
 

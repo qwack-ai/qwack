@@ -456,6 +456,18 @@ export class DynamoRepository implements IRepository {
     return result.Count ?? 0
   }
 
+  async removeParticipant(sessionId: string, userId: string): Promise<void> {
+    await this.docClient.send(
+      new DeleteCommand({
+        TableName: this.tableName,
+        Key: {
+          PK: sessionPK(sessionId),
+          SK: participantSK(userId),
+        },
+      }),
+    )
+  }
+
   // ── Events ────────────────────────────────────────────────────────────────
 
   async putEvent(event: EventRecord): Promise<void> {
