@@ -24,10 +24,11 @@ export const subjects = createSubjects({
  * Returns a Hono app that handles OAuth flows.
  */
 export function createAuthIssuer(repo: IRepository) {
+  const tableName = process.env.QWACK_TABLE_NAME
   return issuer({
     subjects,
-    storage: process.env.QWACK_TABLE_NAME
-      ? DynamoStorage(process.env.QWACK_TABLE_NAME)
+    storage: tableName
+      ? DynamoStorage(tableName)
       : MemoryStorage({ persist: "./auth-storage.json" }),
 
     providers: {
