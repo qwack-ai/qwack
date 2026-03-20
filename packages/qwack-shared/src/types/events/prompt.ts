@@ -13,4 +13,5 @@ export interface PromptRequestPayload {
 export interface PromptExecutePayload {
   content: string;
   requestedBy: string;
+  requestedByName?: string;
 }

@@ -46,6 +46,7 @@ export function handlePromptRequest(sessionId: string, userId: string, payload: 
     payload: {
       content: requestPayload.content as string,
       requestedBy: userId,
+      requestedByName: (requestPayload.authorName as string) ?? userId,
     } satisfies PromptExecutePayload,
   }
 

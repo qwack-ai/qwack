@@ -44,6 +44,18 @@ export interface MessageHandlerDeps {
 }
 
 export function createMessageHandler(deps: MessageHandlerDeps) {
+  const recentEvents = new Set<string>()
+  function isDuplicate(data: { type: string; timestamp?: number; payload?: any }): boolean {
+    const key = `${data.type}:${data.timestamp ?? 0}:${JSON.stringify(data.payload).slice(0, 100)}`
+    if (recentEvents.has(key)) return true
+    recentEvents.add(key)
+    if (recentEvents.size > 500) {
+      const first = recentEvents.values().next().value
+      if (first) recentEvents.delete(first)
+    }
+    return false
+  }
+
   function ensureAssistantMessage(localSid: string, messageId: string) {
     deps.syncSet("message", produce((draft: Record<string, any[]>) => {
       if (!draft[localSid]) draft[localSid] = []
@@ -68,10 +80,13 @@ export function createMessageHandler(deps: MessageHandlerDeps) {
       return
     }
 
+    if (data.type.startsWith("agent:") && isDuplicate(data)) return
+
     switch (data.type) {
       case "auth:ok":
         batch(() => {
           deps.setIsAuthenticated(true)
+          deps.setConnectionMessage("")
           if (data.payload.user && typeof data.payload.user === "object") {
             const user = data.payload.user as { id?: string; name?: string; role?: string }
             if (user.name) deps.setUserName(user.name)
@@ -181,7 +196,7 @@ export function createMessageHandler(deps: MessageHandlerDeps) {
       }
       case "prompt:execute": {
         const content = (data.payload.content as string) ?? ""
-        const requestedBy = (data.payload.requestedBy as string) ?? "unknown"
+        const requestedBy = (data.payload.requestedByName as string) ?? (data.payload.requestedBy as string) ?? "unknown"
         const cb = deps.getPromptExecuteCallback()
         if (cb && content) cb(content, requestedBy)
         break
