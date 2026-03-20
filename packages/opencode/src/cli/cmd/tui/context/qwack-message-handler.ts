@@ -44,6 +44,8 @@ export interface MessageHandlerDeps {
 }
 
 export function createMessageHandler(deps: MessageHandlerDeps) {
+  const seenChunks = new Set<string>()
+
   function ensureAssistantMessage(localSid: string, messageId: string) {
     deps.syncSet("message", produce((draft: Record<string, any[]>) => {
       if (!draft[localSid]) draft[localSid] = []
@@ -219,6 +221,10 @@ export function createMessageHandler(deps: MessageHandlerDeps) {
         if (!localSid) break
         const messageId = (data.payload.messageId as string) ?? crypto.randomUUID()
         const content = (data.payload.content as string) ?? ""
+        const chunkKey = `${messageId}:${data.timestamp}:${content.length}`
+        if (seenChunks.has(chunkKey)) break
+        seenChunks.add(chunkKey)
+        if (seenChunks.size > 1000) { const first = seenChunks.values().next().value; if (first) seenChunks.delete(first) }
         batch(() => {
           ensureAssistantMessage(localSid, messageId)
           deps.syncSet("part", produce((draft: Record<string, any[]>) => {
@@ -236,6 +242,9 @@ export function createMessageHandler(deps: MessageHandlerDeps) {
         if (!localSid) break
         const messageId = (data.payload.messageId as string) ?? crypto.randomUUID()
         const content = (data.payload.content as string) ?? ""
+        const thinkKey = `think:${messageId}:${data.timestamp}:${content.length}`
+        if (seenChunks.has(thinkKey)) break
+        seenChunks.add(thinkKey)
         const partId = `${messageId}-reasoning`
         batch(() => {
           ensureAssistantMessage(localSid, messageId)

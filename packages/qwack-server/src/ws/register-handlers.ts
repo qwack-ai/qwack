@@ -4,6 +4,7 @@ import {
   clearHandlerRegistrations,
   getHostUserId,
   broadcastToSession,
+  getSessionConnections,
   sendToUser,
   setUserRole,
   setWsRepo,

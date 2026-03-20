@@ -72,6 +72,19 @@ describe("WS Connection Registry", () => {
     expect(JSON.parse(ws2._sent[0])).toEqual({ type: "test" });
   });
 
+  test("broadcastToSession sends to all connections for same user", () => {
+    const room = getSessionConnections("session-multi");
+    const ws1 = createMockWs();
+    const ws2 = createMockWs();
+    room.set("user-1", [ws1, ws2]);
+    room.set("user-2", [createMockWs()]);
+
+    broadcastToSession("session-multi", { type: "test" }, "user-2");
+
+    expect(ws1._sent.length).toBe(1);
+    expect(ws2._sent.length).toBe(1);
+  });
+
   test("broadcastToSession sends to all when no exclusion", () => {
     const room = getSessionConnections("session-1");
     const ws1 = createMockWs();
