@@ -54,12 +54,7 @@ export async function loginFlow(serverUrl: string): Promise<QwackConfig> {
             httpServer.stop();
             resolve(config);
 
-            return new Response(
-              `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Qwack</title>
-              <style>body{font-family:system-ui,sans-serif;display:flex;justify-content:center;align-items:center;height:100vh;margin:0;background:#1a1a1a;color:#c2c2b0}div{text-align:center}h1{font-size:48px;margin:0 0 8px}p{color:#888;font-size:16px}</style>
-              </head><body><div><h1>\uD83E\uDD86</h1><p>Logged in. You can close this tab.</p></div></body></html>`,
-              { headers: { "Content-Type": "text/html; charset=utf-8" } },
-            );
+            return Response.redirect("https://qwack.ai", 302);
           } catch (err) {
             clearTimeout(timeout);
             httpServer.stop();
