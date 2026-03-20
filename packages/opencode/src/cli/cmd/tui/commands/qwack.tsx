@@ -147,11 +147,9 @@ export function QwackCommands() {
                     const exchanged = await client.exchange(code, redirectUri)
                     if (exchanged.err) { reject(new Error("Token exchange failed")); return new Response("Auth failed. Close this tab.") }
                     clearTimeout(timeout)
-                    callbackServer.stop()
                     resolve({ access: exchanged.tokens.access, refresh: exchanged.tokens.refresh })
-                    return new Response("<html><body><h2>✅ Logged in to Qwack!</h2><p>You can close this tab.</p></body></html>", {
-                      headers: { "Content-Type": "text/html" },
-                    })
+                    setTimeout(() => callbackServer.stop(), 500)
+                    return Response.redirect("https://qwack.ai", 302)
                   } catch (err) {
                     reject(err)
                     return new Response("Auth error. Close this tab.")
