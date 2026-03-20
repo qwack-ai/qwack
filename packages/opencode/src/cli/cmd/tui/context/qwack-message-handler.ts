@@ -221,7 +221,7 @@ export function createMessageHandler(deps: MessageHandlerDeps) {
         if (!localSid) break
         const messageId = (data.payload.messageId as string) ?? crypto.randomUUID()
         const content = (data.payload.content as string) ?? ""
-        const chunkKey = `${messageId}:${data.timestamp}:${content.length}`
+        const chunkKey = `${messageId}:${content}`
         if (seenChunks.has(chunkKey)) break
         seenChunks.add(chunkKey)
         if (seenChunks.size > 1000) { const first = seenChunks.values().next().value; if (first) seenChunks.delete(first) }
@@ -242,7 +242,7 @@ export function createMessageHandler(deps: MessageHandlerDeps) {
         if (!localSid) break
         const messageId = (data.payload.messageId as string) ?? crypto.randomUUID()
         const content = (data.payload.content as string) ?? ""
-        const thinkKey = `think:${messageId}:${data.timestamp}:${content.length}`
+        const thinkKey = `think:${messageId}:${content}`
         if (seenChunks.has(thinkKey)) break
         seenChunks.add(thinkKey)
         const partId = `${messageId}-reasoning`
