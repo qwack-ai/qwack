@@ -1,5 +1,6 @@
 import { issuer } from "@openauthjs/openauth"
 import { MemoryStorage } from "@openauthjs/openauth/storage/memory"
+import { DynamoStorage } from "./dynamo-storage"
 import { createSubjects } from "@openauthjs/openauth/subject"
 import { object, string } from "valibot"
 import { GithubProvider } from "@openauthjs/openauth/provider/github"
@@ -25,7 +26,9 @@ export const subjects = createSubjects({
 export function createAuthIssuer(repo: IRepository) {
   return issuer({
     subjects,
-    storage: MemoryStorage({ persist: "./auth-storage.json" }),
+    storage: process.env.QWACK_TABLE_NAME
+      ? DynamoStorage(process.env.QWACK_TABLE_NAME)
+      : MemoryStorage({ persist: "./auth-storage.json" }),
 
     providers: {
       github: GithubProvider({
