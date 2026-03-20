@@ -9,10 +9,8 @@ import { createSessionParticipantRoutes } from "./routes/session-participants"
 import { createSessionEventRoutes } from "./routes/session-events"
 import { createUserRoutes } from "./routes/users"
 import { wsApp } from "./ws/handler"
-import { createDatabase } from "./db/index"
+import { createRepository } from "./repo/factory"
 import { registerWsHandlers } from "./ws/register-handlers"
-import { loadConfig } from "./config"
-import { SqliteRepository } from "./repo/sqlite"
 import type { IRepository } from "./repo/types"
 import { createAuthIssuer } from "./auth/openauth"
 
@@ -48,7 +46,5 @@ export function createApp(repo?: IRepository): Hono {
   return app
 }
 
-const config = loadConfig()
-const { db } = createDatabase(config.databaseUrl)
-const sqliteRepo = new SqliteRepository(db)
-export const app = createApp(sqliteRepo)
+const repo = await createRepository()
+export const app = createApp(repo)
