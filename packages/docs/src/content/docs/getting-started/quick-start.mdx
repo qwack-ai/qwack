@@ -1,0 +1,81 @@
+---
+title: Quick Start
+description: Get collaborating in under a minute
+---
+
+## Install
+
+import { Tabs, TabItem } from "@astrojs/starlight/components"
+
+<Tabs>
+  <TabItem label="Mac / Linux">
+    ```bash
+    curl -fsSL https://qwack.ai/install | sh
+    ```
+  </TabItem>
+  <TabItem label="Windows">
+    ```powershell
+    irm https://qwack.ai/install.ps1 | iex
+    ```
+  </TabItem>
+</Tabs>
+
+Or download binaries directly from [GitHub Releases](https://github.com/qwack-ai/qwack/releases).
+
+This gives you the full `qwack` CLI — all OpenCode features plus native collaboration.
+
+## Authenticate
+
+```bash
+/qwack login
+```
+
+This opens your browser for GitHub OAuth. Once authenticated, your token is stored locally in `~/.config/qwack/config.json`. No account is needed for solo use — login is only required for collaborative sessions.
+
+:::note
+For self-hosted servers, use `/qwack login --server https://your-server.example.com`.
+:::
+
+## Start a session
+
+```bash
+/qwack start "my session"
+```
+
+This creates a new collaborative session. You automatically become the **host** — the person running the AI agent. A short join code is generated (e.g. `GENTLE-WADDLE-26`).
+
+## Invite collaborators
+
+```bash
+/qwack invite
+```
+
+This displays the short join code and a shareable link. Send either to your teammates.
+
+## Join a session
+
+```bash
+/qwack join GENTLE-WADDLE-26
+```
+
+Collaborators join using the short code. They enter **relay mode** — their prompts route through the Qwack server to the host's agent. Everyone shares one conversation context.
+
+---
+
+## Collaborate
+
+Once connected, everyone can:
+
+- **Send prompts** — type normally, prompts are relayed to the host's agent
+- **Send messages** — `/qwack msg hey, looking good!` for side-channel chat (👤 prefix)
+- **See everything** — agent output, tool calls, file changes stream to all participants in real time
+
+
+
+---
+
+## What's next
+
+- [Commands](/guides/commands) — full reference for all `/qwack` slash commands
+- [Architecture](/guides/architecture) — how the host model works under the hood
+- [Security](/guides/security) — privacy guarantees, what the server sees

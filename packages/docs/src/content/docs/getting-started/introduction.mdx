@@ -1,0 +1,43 @@
+---
+title: Introduction
+description: What is Qwack and why it exists
+---
+
+Qwack is a **collaborative AI agent steering platform** — a distribution of [OpenCode](https://github.com/anomalyco/opencode) with native real-time collaboration.
+
+## The problem
+
+AI coding agents are solo. You talk to your agent alone. Your teammate talks to theirs alone. Two agents, two contexts, zero shared understanding. If you want to rubber-duck a problem together with an AI, you're stuck screen-sharing or copy-pasting prompts.
+
+## The Qwack model
+
+Qwack uses a **host model** where one person runs the AI agent and everyone else participates in the same conversation:
+
+- **One agent, one context.** All collaborators share the same conversation history, tool results, and code changes.
+- **Terminal-native.** Qwack runs in your terminal, not a browser. Full filesystem access, real code execution.
+- **Your credentials stay local.** API keys, env vars, and secrets never leave the host's machine. The conversation (prompts, responses, tool output) is relayed so everyone can collaborate.
+
+
+
+## Key features
+
+- **Real-time multi-user** — multiple people steering one AI agent simultaneously
+- **Shared agent context** — everyone sees the same output, tool calls, and file changes
+- **Terminal-native** — full OpenCode experience with collaboration layered on top
+- **Your code stays local** — the server is a relay, never sees source code or credentials
+- **Agent-agnostic** — use any LLM provider (your API keys, your choice)
+- **Plan collaboration** — shared todo list in terminal, Yjs CRDT canvas on web
+- **Offline sync** — keep working when disconnected, events replay on reconnect
+- **OMO compatible** — all OpenCode plugins work unchanged
+
+## Built on OpenCode
+
+Qwack is a distribution of [OpenCode](https://github.com/anomalyco/opencode) — the open-source AI coding agent. Everything OpenCode can do, Qwack can do too:
+
+- **75+ LLM providers** — configure any provider via `opencode.json`
+- **MCP servers** — extend your agent with Model Context Protocol tools
+- **Plugin system** — all OpenCode and OMO plugins work unchanged
+- **Custom agents** — build/plan agents, custom agent definitions
+- **Themes, keybinds, permissions** — all OpenCode configuration is supported
+
+For anything not specific to collaboration, refer to the [OpenCode repository](https://github.com/anomalyco/opencode). Qwack adds the collaborative layer on top — the underlying engine is identical.

@@ -1,0 +1,26 @@
+{
+  "name": "@qwack/shared",
+  "version": "0.1.0",
+  "private": true,
+  "license": "MIT",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./*": "./src/*.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "bun test"
+  },
+  "dependencies": {
+    "lib0": "^0.2.0",
+    "ulid": "^2.3.0",
+    "y-protocols": "^1.0.0",
+    "yjs": "^13.6.0",
+    "zod": "^3.23.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.0",
+    "bun-types": "latest"
+  }
+}

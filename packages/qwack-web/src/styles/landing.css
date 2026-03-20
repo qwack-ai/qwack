@@ -1,0 +1,647 @@
+/* ── Fonts ── */
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap');
+
+/* ── TUI Design Tokens ── */
+:root {
+  --bg: #303030;
+  --bg-elevated: #383838;
+  --bg-shadow: #31312c;
+  --text: #c2c2b0;
+  --text-muted: #aaaaaa;
+  --text-dim: #666666;
+  --text-dark: #222222;
+  --brand: #e8a317;
+  --brand-dim: #b36d43;
+  --palette-selected: #c9a554;
+  --palette-selected-text: #222222;
+  --code: #5f875f;
+  --list-num: #78824b;
+  --thinking: #74746a;
+  --thinking-label: #6b4128;
+  --border: #555555;
+  --font-mono: 'Berkeley Mono', 'JetBrains Mono', 'Fira Code', 'SF Mono',
+    'Cascadia Code', 'Consolas', monospace;
+}
+
+/* ── Reset ── */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: 14px;
+  line-height: 1.5;
+  height: 100vh;
+  overflow: hidden;
+}
+
+#root {
+  height: 100vh;
+}
+
+/* ── TUI Container ── */
+.tui {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  cursor: text;
+}
+
+/* ═══════════════════════════════
+   SPLASH VIEW
+   ═══════════════════════════════ */
+.splash {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  max-width: 720px;
+  margin: 0 auto;
+  width: 100%;
+  padding: 0 24px;
+}
+
+.splash-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-top: 25vh;
+  padding-bottom: 24px;
+  animation: fade-in 0.5s ease-out;
+}
+
+.logo-block {
+  user-select: none;
+}
+
+.logo-row {
+  display: flex;
+  white-space: pre;
+}
+
+.duck-art {
+  color: var(--text-muted);
+  font-size: 14px;
+  line-height: 1.3;
+}
+
+.logo-text {
+  color: var(--text);
+  font-weight: bold;
+  font-size: 14px;
+  line-height: 1.3;
+  text-shadow: 0 2px 0 var(--bg-shadow);
+}
+
+.splash-bottom {
+  flex-shrink: 0;
+  padding-bottom: 24px;
+  animation: fade-in 0.6s ease-out 0.2s both;
+}
+
+/* ═══════════════════════════════
+   PROMPT BAR (box-drawing chars)
+   ═══════════════════════════════ */
+.palette-anchor {
+  position: relative;
+}
+
+.prompt-bar {
+  margin-top: 8px;
+  background: var(--bg-elevated);
+}
+
+.prompt-row {
+  display: flex;
+  align-items: center;
+  min-height: 22px;
+}
+
+.prompt-pipe {
+  color: var(--brand);
+  width: 20px;
+  text-align: center;
+  flex-shrink: 0;
+  font-size: 16px;
+  line-height: 1;
+}
+
+.prompt-fill {
+  flex: 1;
+}
+
+.prompt-form {
+  flex: 1;
+  display: flex;
+}
+
+.prompt-prefix {
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: 14px;
+  line-height: 1.5;
+  white-space: nowrap;
+  padding-left: 8px;
+}
+
+.prompt-input-wrap {
+  position: relative;
+  flex: 1;
+  display: flex;
+  align-items: center;
+}
+
+.prompt-input {
+  width: 100%;
+  background: none;
+  border: none;
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: 14px;
+  line-height: 1.5;
+  outline: none;
+  padding: 0;
+  caret-color: var(--text);
+}
+
+.prompt-input::placeholder {
+  color: var(--text-dim);
+}
+
+.prompt-typewriter {
+  position: absolute;
+  left: 0;
+  top: 0;
+  color: var(--text-dim);
+  font-family: var(--font-mono);
+  font-size: 14px;
+  line-height: 1.5;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.prompt-model {
+  padding: 0 8px;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.model-qwack {
+  color: var(--brand);
+}
+
+.model-name {
+  color: var(--text);
+}
+
+.model-provider {
+  color: var(--text-muted);
+}
+
+.model-sep {
+  color: var(--text-muted);
+}
+
+.model-tier {
+  color: var(--brand-dim);
+  font-weight: bold;
+}
+
+.prompt-bottom-row {
+  background: transparent;
+  min-height: 18px;
+}
+
+.prompt-cap {
+  color: var(--brand);
+  width: 20px;
+  text-align: center;
+  flex-shrink: 0;
+  font-size: 16px;
+  line-height: 1;
+}
+
+.prompt-bottom-line {
+  color: var(--bg-elevated);
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+/* ═══════════════════════════════
+   COMMAND PALETTE
+   ═══════════════════════════════ */
+.palette {
+  position: absolute;
+  bottom: 100%;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  animation: slide-up 0.12s ease-out;
+}
+
+.palette-row {
+  display: flex;
+  align-items: center;
+  background: var(--bg-elevated);
+  padding: 6px 0;
+  cursor: pointer;
+  gap: 12px;
+}
+
+.palette-row:first-child {
+  border-radius: 4px 4px 0 0;
+}
+
+.palette-row.selected {
+  background: var(--palette-selected);
+}
+
+.palette-row.selected .palette-cmd,
+.palette-row.selected .palette-desc {
+  color: var(--palette-selected-text);
+}
+
+.palette-row.selected .palette-pipe {
+  color: var(--palette-selected-text);
+  opacity: 0.3;
+}
+
+.palette-pipe {
+  color: var(--border);
+  width: 20px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.palette-cmd {
+  color: var(--text);
+  white-space: nowrap;
+  min-width: 150px;
+  font-size: 13px;
+}
+
+.palette-desc {
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 13px;
+  flex: 1;
+}
+
+/* ═══════════════════════════════
+   SHORTCUTS / TIP / FOOTER
+   ═══════════════════════════════ */
+.shortcuts {
+  display: flex;
+  gap: 24px;
+  padding: 10px 0 4px;
+  justify-content: center;
+  font-size: 13px;
+}
+
+.shortcut-key {
+  color: var(--text);
+}
+
+.shortcut-label {
+  color: var(--text-muted);
+}
+
+.tip {
+  text-align: center;
+  padding: 4px 0;
+  font-size: 13px;
+}
+
+.tip-bullet {
+  color: var(--brand-dim);
+}
+
+.tip-label {
+  color: var(--text-muted);
+}
+
+.tip-desc {
+  color: var(--text-muted);
+}
+
+.tip-code {
+  color: var(--text);
+}
+
+.footer-links {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  padding: 12px 0;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.footer-link {
+  color: var(--text-muted);
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  transition: color 0.12s;
+}
+
+.footer-link:hover {
+  color: var(--text);
+}
+
+.footer-link svg {
+  vertical-align: middle;
+}
+
+/* ═══════════════════════════════
+   SESSION VIEW
+   ═══════════════════════════════ */
+.session {
+  height: 100vh;
+  display: flex;
+}
+
+.session-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.session-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px 24px 8px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+
+.session-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.session-content::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 3px;
+}
+
+.session-prompt {
+  flex-shrink: 0;
+  padding: 0 24px 12px;
+}
+
+/* ── User Prompt ── */
+.user-prompt {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-bottom: 20px;
+  padding: 8px 0;
+}
+
+.user-prompt-pipe {
+  color: var(--brand);
+  font-size: 16px;
+  flex-shrink: 0;
+  line-height: 1.5;
+}
+
+.user-prompt-text {
+  color: var(--text);
+}
+
+/* ── Thinking Block ── */
+.thinking-block {
+  margin-bottom: 16px;
+  padding-left: 28px;
+  animation: fade-in 0.25s ease-out;
+}
+
+.thinking-label {
+  color: var(--thinking-label);
+  font-style: italic;
+  font-weight: bold;
+  margin-bottom: 2px;
+  font-size: 13px;
+}
+
+.thinking-text {
+  color: var(--thinking);
+  font-style: italic;
+  font-size: 13px;
+}
+
+/* ── Tool Call ── */
+.tool-call {
+  margin-bottom: 16px;
+  padding-left: 28px;
+  animation: fade-in 0.25s ease-out;
+}
+
+.tool-icon {
+  color: var(--text-muted);
+  margin-right: 6px;
+}
+
+.tool-name {
+  color: var(--text-muted);
+}
+
+/* ── Response Lines ── */
+.response-lines {
+  padding-left: 28px;
+}
+
+.response-line {
+  margin-bottom: 2px;
+  animation: fade-in 0.15s ease-out;
+}
+
+.resp-text {
+  color: var(--text);
+}
+
+.resp-numbered {
+  color: var(--text);
+}
+
+.resp-num {
+  color: var(--list-num);
+  font-weight: bold;
+}
+
+.resp-code {
+  color: var(--code);
+  font-weight: bold;
+}
+
+.resp-blank {
+  display: block;
+  height: 10px;
+}
+
+.resp-pre {
+  color: var(--text-muted);
+  margin: 4px 0;
+  line-height: 1.3;
+  font-family: var(--font-mono);
+  font-size: 13px;
+}
+
+.resp-video {
+  width: 100%;
+  max-width: 100%;
+  border-radius: 6px;
+  margin: 8px 0;
+  border: 1px solid var(--border);
+}
+
+.resp-bullet {
+  color: var(--text);
+}
+
+.bullet-dot {
+  color: var(--text-muted);
+}
+
+.bullet-em {
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+/* ── Agent Metadata ── */
+.agent-meta {
+  padding-left: 28px;
+  margin-top: 20px;
+  padding-top: 8px;
+  animation: fade-in 0.3s ease-out;
+}
+
+.meta-icon {
+  color: var(--brand);
+  margin-right: 6px;
+}
+
+.meta-name {
+  color: var(--text);
+}
+
+.meta-info {
+  color: var(--text-muted);
+}
+
+/* ═══════════════════════════════
+   SIDEBAR
+   ═══════════════════════════════ */
+.session-sidebar {
+  width: 260px;
+  flex-shrink: 0;
+  border-left: 3px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  padding: 24px 16px;
+}
+
+.sidebar-sections {
+  flex: 1;
+}
+
+.sidebar-section {
+  margin-bottom: 20px;
+}
+
+.sidebar-heading {
+  color: var(--text);
+  font-weight: bold;
+  margin-bottom: 4px;
+  font-size: 13px;
+}
+
+.sidebar-value {
+  color: var(--text-muted);
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.sidebar-footer {
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+}
+
+.sidebar-duck {
+  color: var(--brand);
+  font-size: 16px;
+}
+
+.sidebar-qwack {
+  color: var(--text-muted);
+  font-weight: bold;
+}
+
+.sidebar-local {
+  color: var(--text-muted);
+}
+
+/* ── Back hint ── */
+.back-hint {
+  padding: 6px 28px;
+  font-size: 12px;
+  color: var(--text-dim);
+  animation: fade-in 0.3s ease-out 1s both;
+}
+
+.back-hint-key {
+  color: var(--text);
+}
+
+/* ═══════════════════════════════
+   ANIMATIONS
+   ═══════════════════════════════ */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ═══════════════════════════════
+   RESPONSIVE
+   ═══════════════════════════════ */
+@media (max-width: 768px) {
+  .session-sidebar {
+    display: none;
+  }
+
+  .splash {
+    padding: 0 16px;
+  }
+
+  .shortcuts {
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+}

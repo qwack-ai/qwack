@@ -1,0 +1,101 @@
+---
+title: Commands
+description: Complete reference for all /qwack slash commands
+---
+
+All Qwack commands are prefixed with `/qwack` and executed directly in the TUI. They are **imperative** — no LLM round-trip, instant execution.
+
+## Authentication
+
+| Command | Description |
+| --- | --- |
+| `/qwack login` | Authenticate with the Qwack server (default: `qwack.ai`). Opens browser for GitHub OAuth. |
+| `/qwack login --server <url>` | Authenticate with a self-hosted Qwack server. |
+| `/qwack logout` | Clear stored credentials from `~/.config/qwack/config.json`. |
+
+:::note
+Login is only required for collaborative sessions. Solo OpenCode use works without authentication.
+:::
+
+### Login flow
+
+```text
+1. User runs:  /qwack login
+2. Browser opens to qwack.ai auth page (GitHub OAuth)
+3. User authenticates
+4. Browser redirects back with auth token
+5. Token stored in ~/.config/qwack/config.json
+6. All subsequent /qwack commands use this token
+```
+
+## Session management
+
+| Command | Aliases | Description |
+| --- | --- | --- |
+| `/qwack start "title"` | `/qstart` | Create a new collaborative session. You become the host. |
+| `/qwack share` | `/qshare` | Convert the current solo session to a collaborative Qwack session. |
+| `/qwack join <code>` | `/qjoin` | Join an existing session by short code (e.g. `GENTLE-WADDLE-26`) or session ID. |
+| `/qwack invite` | `/qinvite` | Display the short join code and shareable invite link. |
+| `/qwack leave` | `/qleave` | Disconnect from the current session. |
+| `/qwack home` | `/qhome` | Return to the splash screen (session list). |
+
+### Starting a session
+
+```bash
+/qwack start "refactor auth module"
+```
+
+This creates a session, assigns you as host, and generates a short join code. An invite dialog appears with the code to share.
+
+### Sharing an existing session
+
+```bash
+/qwack share
+```
+
+Converts your current solo OpenCode session into a collaborative Qwack session. Your existing conversation history is pushed to the server so collaborators can see it when they join.
+
+### Joining
+
+```bash
+/qwack join GENTLE-WADDLE-26
+```
+
+Short codes are case-insensitive and follow the `ADJECTIVE-NOUN-NN` format. You can also join by full session ID.
+
+---
+
+## In-session
+
+| Command | Aliases | Description |
+| --- | --- | --- |
+| `/qwack who` | `/qwho` | List current participants and their roles. |
+| `/qwack msg <text>` | `/qmsg` | Send a side-channel message to collaborators (appears with 👤 prefix). |
+| `/qwack host <user>` | `/qhost` | Transfer the host role to another collaborator. Host-only. |
+| `/qwack kick <user>` | `/qkick` | Remove a participant from the session. Host-only. |
+| `/qwack status` | `/qstatus` | Show connection status, short code, session ID, role, and server URL. |
+| `/qwack docs` | `/qdocs` | Open the Qwack documentation in your browser. |
+
+### Collaborator messages
+
+```bash
+/qwack msg should we add rate limiting too?
+```
+
+Messages sent with `/qwack msg` are **side-channel chat** — they appear inline in everyone's terminal with a `👤 name:` prefix but do **not** trigger the AI agent. Only prompts (typed normally in the input box) are sent to the agent.
+
+### Host transfer
+
+```bash
+/qwack host sarah
+```
+
+Only the current host can transfer the host role. When transferred:
+
+1. The old host switches to relay mode (conversation preserved, view stays intact)
+2. The new host's TUI creates a local OpenCode session
+3. Context is transferred via snapshot so the new host's agent has full history
+
+:::tip
+If the host disconnects unexpectedly, the server auto-promotes the next connected collaborator after a 5-second grace period.
+:::

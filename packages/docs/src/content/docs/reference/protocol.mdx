@@ -1,0 +1,147 @@
+---
+title: WebSocket Protocol
+description: Event types, message format, and payload reference
+---
+
+All communication between Qwack clients (TUI, web, plugin) and the Qwack server happens over WebSocket using JSON messages.
+
+## Message format
+
+Every WebSocket message follows this envelope:
+
+```json
+{
+  "type": "string",
+  "sessionId": "string",
+  "senderId": "string",
+  "timestamp": 1710000000000,
+  "payload": {}
+}
+```
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `type` | `string` | Event type (e.g. `prompt:sent`, `agent:output`) |
+| `sessionId` | `string` | Session this event belongs to |
+| `senderId` | `string` | User or system ID that sent the event |
+| `timestamp` | `number` | Unix timestamp in milliseconds |
+| `payload` | `object` | Event-specific data (see below) |
+
+---
+
+## Auth events
+
+Sent immediately after WebSocket connection is established.
+
+| Type | Direction | Payload |
+| --- | --- | --- |
+| `auth:token` | Client → Server | `{ token: string }` |
+| `auth:ok` | Server → Client | `{ user: User }` |
+| `auth:error` | Server → Client | `{ message: string }` |
+
+## Presence events
+
+Track who's online and their roles.
+
+| Type | Direction | Payload |
+| --- | --- | --- |
+| `presence:join` | Server → All | `{ user: User, role: Role }` |
+| `presence:leave` | Server → All | `{ userId: string }` |
+| `presence:typing` | Client → Server → All | `{ userId: string }` |
+| `presence:list` | Server → Client (on join) | `{ participants: Presence[] }` |
+
+```typescript
+type Role = "host" | "collaborator"
+
+interface Presence {
+  id: string
+  name: string
+  role: Role
+  isConnected: boolean
+}
+```
+
+## Collaborator messages
+
+Side-channel chat between participants. These do **not** trigger the AI agent.
+
+| Type | Direction | Payload |
+| --- | --- | --- |
+| `collab:message` | Client → Server → All | `{ authorName: string, content: string }` |
+
+Rendered in the TUI as `👤 name: content`.
+
+---
+
+## Prompt events
+
+### Host sends a prompt
+
+When the host types a prompt, the plugin captures and mirrors it:
+
+| Type | Direction | Payload |
+| --- | --- | --- |
+| `prompt:sent` | Host Plugin → Server → All | `{ authorId: string, authorName: string, content: string }` |
+
+### Non-host requests a prompt
+
+When a non-host or web user sends a prompt:
+
+| Type | Direction | Payload |
+| --- | --- | --- |
+| `prompt:request` | Client → Server | `{ authorId: string, authorName: string, content: string }` |
+| `prompt:execute` | Server → Host Plugin | `{ content: string, requestedBy: string }` |
+
+The server relays `prompt:request` to the host's plugin as `prompt:execute`. Only the host's agent processes the prompt.
+
+---
+
+## Agent events
+
+Mirrored from the host's plugin to all connected clients.
+
+| Type | Direction | Payload |
+| --- | --- | --- |
+| `agent:output` | Host → Server → All | `{ content: string, partId: string }` |
+| `agent:tool_use` | Host → Server → All | `{ tool: string, input: any }` |
+| `agent:tool_result` | Host → Server → All | `{ tool: string, output: string }` |
+| `agent:permission` | Host → Server → All | `{ tool: string, command: string, requestId: string }` |
+| `agent:permission_response` | Client → Server → Host | `{ requestId: string, allowed: boolean }` |
+| `agent:complete` | Host → Server → All | `{ messageId: string }` |
+
+## Plan sync events
+
+Yjs CRDT updates for the shared plan document.
+
+| Type | Direction | Payload |
+| --- | --- | --- |
+| `plan:sync` | Client ↔ Server ↔ All | `{ update: string }` (base64-encoded Yjs binary) |
+| `plan:awareness` | Client ↔ Server ↔ All | Yjs awareness protocol data |
+
+---
+
+## Session events
+
+Session lifecycle and configuration changes.
+
+| Type | Direction | Payload |
+| --- | --- | --- |
+| `session:status_change` | Server → All | `{ status: "active" \| "paused" \| "completed" }` |
+| `session:host_change` | Server → All | `{ newHostId: string }` |
+| `session:settings_change` | Server → All | `{ settings: object }` |
+| `session:history` | Server → Client (on join) | Array of persisted events for replay |
+| `session:context_snapshot` | Host → Server | Context snapshot for host transfer |
+| `session:error` | Server → Client | `{ message: string, code?: string }` |
+
+---
+
+## Event persistence
+
+All events (except `presence:typing` and `plan:awareness`) are persisted to the `session_events` database table. This enables:
+
+- **Late joiner replay** — new participants receive full conversation history via `session:history`
+- **Host transfer** — new host receives event history instead of lossy LLM compaction
+- **Session persistence** — reconnect after hours/days with full history intact
+- **Offline sync** — events queued locally during disconnect are flushed with `replayed: true` flag
+
+Events are auto-deleted after the session TTL expires (default: 30 days).

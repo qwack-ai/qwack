@@ -1,0 +1,55 @@
+#!/bin/sh
+set -e
+
+REPO="qwack-ai/qwack"
+INSTALL_DIR="${QWACK_INSTALL_DIR:-$HOME/.local/bin}"
+
+OS=$(uname -s | tr '[:upper:]' '[:lower:]')
+ARCH=$(uname -m)
+
+case "$OS" in
+  linux)  PLATFORM="linux" ;;
+  darwin) PLATFORM="darwin" ;;
+  *)      echo "Unsupported OS: $OS"; exit 1 ;;
+esac
+
+case "$ARCH" in
+  x86_64|amd64)  ARCH="x64" ;;
+  aarch64|arm64) ARCH="arm64" ;;
+  *)             echo "Unsupported architecture: $ARCH"; exit 1 ;;
+esac
+
+TARGET="qwack-${PLATFORM}-${ARCH}"
+
+# Get latest release tag (including pre-releases)
+TAG=$(curl -fsSL "https://api.github.com/repos/${REPO}/releases" | grep '"tag_name"' | head -1 | cut -d'"' -f4)
+if [ -z "$TAG" ]; then
+  echo "Failed to fetch latest release"
+  exit 1
+fi
+
+URL="https://github.com/${REPO}/releases/download/${TAG}/${TARGET}.tar.gz"
+
+echo "Installing qwack ${TAG} (${PLATFORM}-${ARCH})..."
+
+TMP=$(mktemp -d)
+curl -fsSL "$URL" -o "${TMP}/qwack.tar.gz"
+tar -xzf "${TMP}/qwack.tar.gz" -C "$TMP"
+
+mkdir -p "$INSTALL_DIR"
+cp "${TMP}/qwack" "$INSTALL_DIR/qwack"
+chmod +x "$INSTALL_DIR/qwack"
+rm -rf "$TMP"
+
+case ":$PATH:" in
+  *":$INSTALL_DIR:"*) ;;
+  *)
+    echo ""
+    echo "Add to your PATH:"
+    echo "  export PATH=\"$INSTALL_DIR:\$PATH\""
+    echo ""
+    ;;
+esac
+
+echo "Installed qwack to $INSTALL_DIR/qwack"
+echo "Run 'qwack' to get started."

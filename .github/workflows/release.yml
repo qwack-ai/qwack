@@ -1,0 +1,52 @@
+name: Release
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+      - run: bun install
+
+      - name: Test
+        env:
+          QWACK_DEV: "true"
+        run: |
+          bun test --cwd packages/qwack-shared
+          bun test --cwd packages/qwack-plugin
+          bun test --cwd packages/qwack-server
+
+      - name: Build
+        run: bun run script/build.ts
+        working-directory: packages/opencode
+
+      - name: Package
+        run: |
+          cd packages/opencode/dist
+          for dir in opencode-*/; do
+            name="${dir%/}"
+            # Skip baseline and musl variants
+            [[ "$name" == *baseline* || "$name" == *musl* ]] && continue
+            qwack_name="${name/opencode/qwack}"
+            if [[ "$name" == *windows* ]]; then
+              (cd "$name/bin" && zip "../../${qwack_name}.zip" *)
+            else
+              (cd "$name/bin" && tar czf "../../${qwack_name}.tar.gz" *)
+            fi
+          done
+
+      - name: Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            packages/opencode/dist/*.tar.gz
+            packages/opencode/dist/*.zip
+          generate_release_notes: false

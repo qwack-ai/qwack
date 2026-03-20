@@ -1,0 +1,442 @@
+/* ============================================================
+   Qwack Docs — Premium Dark Theme
+   Brand: #e8a317 (dark orange), #303030 bg, #c2c2b0 text
+   Built on Starlight. Designed to feel premium + terminal-native.
+   ============================================================ */
+
+/* ----------------------------------------------------------
+   1. DESIGN TOKENS — Qwack color palette
+   ---------------------------------------------------------- */
+
+:root {
+  /* Accent scale (warm orange) */
+  --sl-color-accent-low: #3d2a08;
+  --sl-color-accent: #e8a317;
+  --sl-color-accent-high: #f5d88a;
+
+  /* Neutral scale (warm grays) */
+  --sl-color-white: #c2c2b0;
+  --sl-color-gray-1: #c2c2b0;
+  --sl-color-gray-2: #aaaaaa;
+  --sl-color-gray-3: #777777;
+  --sl-color-gray-4: #555555;
+  --sl-color-gray-5: #383838;
+  --sl-color-gray-6: #303030;
+  --sl-color-gray-7: #242424;
+  --sl-color-black: #1a1a1a;
+
+  /* Semantic */
+  --sl-color-text-accent: var(--sl-color-accent);
+  --sl-color-text-invert: #1a1a1a;
+  --sl-color-bg-inline-code: #2a2a24;
+
+  /* Layout */
+  --sl-content-width: 55rem;
+  --sl-sidebar-width: 18rem;
+
+  /* Typography */
+  --sl-line-height: 1.7;
+  --sl-line-height-headings: 1.2;
+}
+
+/* ----------------------------------------------------------
+   2. GLOBAL TYPOGRAPHY
+   ---------------------------------------------------------- */
+
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* Text selection — dark text on accent background */
+::selection {
+  background: var(--sl-color-accent);
+  color: #1a1a1a;
+}
+
+/* ----------------------------------------------------------
+   3. SITE TITLE — duck orange accent
+   ---------------------------------------------------------- */
+
+.site-title {
+  color: var(--sl-color-accent) !important;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+/* ----------------------------------------------------------
+   4. HEADER — subtle bottom separator
+   ---------------------------------------------------------- */
+
+header.header {
+  border-bottom: 1px solid var(--sl-color-gray-5);
+  backdrop-filter: blur(12px);
+}
+
+/* ----------------------------------------------------------
+   5. SIDEBAR — refined navigation
+   ---------------------------------------------------------- */
+
+/* Spacing between sidebar groups */
+.sidebar-content ul.top-level > li + li {
+  margin-top: 0.125rem;
+}
+
+/* Group labels */
+.sidebar-content .group-label span {
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  text-transform: none;
+}
+
+/* Chevrons match accent */
+.sidebar-content summary .caret {
+  color: var(--sl-color-gray-3);
+  transition: color 0.2s ease, transform 0.2s ease;
+}
+.sidebar-content summary:hover .caret {
+  color: var(--sl-color-accent);
+}
+
+/* Sidebar links — smooth transitions */
+.sidebar-content a {
+  transition: color 0.15s ease, background-color 0.15s ease,
+    border-color 0.15s ease;
+  border-left: 2px solid transparent;
+  margin-left: -2px;
+  padding-left: calc(0.5rem + 2px);
+  border-radius: 0 0.25rem 0.25rem 0;
+}
+
+/* Hover state */
+.sidebar-content a:hover {
+  color: var(--sl-color-white);
+  background-color: var(--sl-color-gray-5);
+  border-left-color: var(--sl-color-gray-3);
+}
+
+/* Active page — accent left border indicator */
+.sidebar-content a[aria-current="page"] {
+  border-left-color: var(--sl-color-accent);
+  background-color: var(--sl-color-accent-low);
+  color: var(--sl-color-accent-high);
+  font-weight: 600;
+}
+
+/* External link icons — subtle */
+.sidebar-content a[href^="http"] {
+  opacity: 0.85;
+}
+.sidebar-content a[href^="http"]:hover {
+  opacity: 1;
+}
+
+/* ----------------------------------------------------------
+   6. CONTENT AREA — typography refinements
+   ---------------------------------------------------------- */
+
+/* Headings */
+.sl-markdown-content h1 {
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin-top: 0;
+}
+
+.sl-markdown-content h2 {
+  font-weight: 650;
+  letter-spacing: -0.015em;
+  margin-top: 2.5rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--sl-color-gray-5);
+}
+
+.sl-markdown-content h3 {
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  margin-top: 2rem;
+}
+
+.sl-markdown-content h4 {
+  font-weight: 600;
+  margin-top: 1.5rem;
+}
+
+/* Paragraphs — generous line-height for dark bg readability */
+.sl-markdown-content p {
+  line-height: 1.75;
+}
+
+/* Lists */
+.sl-markdown-content li {
+  line-height: 1.7;
+}
+.sl-markdown-content li + li {
+  margin-top: 0.25rem;
+}
+
+/* ----------------------------------------------------------
+   7. LINKS — accent hover with underline transition
+   ---------------------------------------------------------- */
+
+.sl-markdown-content a {
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+  text-decoration-color: transparent;
+  transition: text-decoration-color 0.2s ease, color 0.2s ease;
+}
+.sl-markdown-content a:hover {
+  text-decoration-color: var(--sl-color-accent);
+}
+
+/* ----------------------------------------------------------
+   8. INLINE CODE — more distinct on dark bg
+   ---------------------------------------------------------- */
+
+.sl-markdown-content :not(pre) > code {
+  background: var(--sl-color-bg-inline-code);
+  border: 1px solid var(--sl-color-gray-5);
+  border-radius: 0.25rem;
+  padding: 0.15em 0.35em;
+  font-size: 0.875em;
+  color: var(--sl-color-accent-high);
+}
+
+/* ----------------------------------------------------------
+   9. CODE BLOCKS — polished containers
+   ---------------------------------------------------------- */
+
+pre {
+  border: 1px solid var(--sl-color-gray-5);
+  border-radius: 0.5rem;
+}
+
+/* Expressive Code frame styling */
+.expressive-code {
+  margin: 1.25rem 0;
+}
+
+.expressive-code .frame {
+  border-radius: 0.5rem;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+}
+
+/* ----------------------------------------------------------
+   10. CALLOUTS / ASIDES — refined look
+   ---------------------------------------------------------- */
+
+.starlight-aside {
+  border-radius: 0.5rem;
+  padding: 1rem 1.25rem;
+  margin: 1.5rem 0;
+  border: 1px solid var(--sl-color-gray-5);
+  border-left-width: 3px;
+  background: var(--sl-color-gray-7);
+}
+
+.starlight-aside--tip {
+  --sl-color-asides-text-accent: #78824b;
+  border-left-color: #78824b;
+  border-color: #78824b33;
+  background: #78824b0a;
+}
+
+.starlight-aside--note {
+  border-left-color: var(--sl-color-accent);
+  border-color: #e8a31733;
+  background: #e8a3170a;
+}
+
+.starlight-aside--caution {
+  border-left-color: #d4822a;
+  border-color: #d4822a33;
+  background: #d4822a0a;
+}
+
+.starlight-aside--danger {
+  border-left-color: #c75050;
+  border-color: #c7505033;
+  background: #c750500a;
+}
+
+.starlight-aside .starlight-aside__title {
+  font-weight: 600;
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.5rem;
+}
+
+/* ----------------------------------------------------------
+   11. TABLES — clean grid with alternating rows
+   ---------------------------------------------------------- */
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 1.25rem 0;
+  font-size: 0.9rem;
+}
+
+th {
+  background: var(--sl-color-gray-5);
+  color: var(--sl-color-accent);
+  font-weight: 600;
+  text-align: left;
+  letter-spacing: 0.01em;
+}
+
+td,
+th {
+  border: 1px solid var(--sl-color-gray-4);
+  padding: 0.625rem 0.875rem;
+}
+
+tr:nth-child(even) {
+  background: #262622;
+}
+
+/* Subtle hover on rows */
+tbody tr {
+  transition: background-color 0.15s ease;
+}
+tbody tr:hover {
+  background: var(--sl-color-gray-5);
+}
+
+/* ----------------------------------------------------------
+   12. HORIZONTAL RULES
+   ---------------------------------------------------------- */
+
+.sl-markdown-content hr {
+  border: none;
+  border-top: 1px solid var(--sl-color-gray-5);
+  margin: 2.5rem 0;
+}
+
+/* ----------------------------------------------------------
+   13. SEARCH RESULT HIGHLIGHTS
+   ---------------------------------------------------------- */
+
+mark,
+.pagefind-ui mark,
+.search-result mark {
+  background: var(--sl-color-accent);
+  color: #1a1a1a;
+  border-radius: 0.125rem;
+  padding: 0.05em 0.15em;
+}
+
+/* ----------------------------------------------------------
+   14. BADGES — dark text on accent
+   ---------------------------------------------------------- */
+
+.sl-badge {
+  color: #1a1a1a;
+}
+
+/* ----------------------------------------------------------
+   15. CTA BUTTONS — dark text on accent
+   ---------------------------------------------------------- */
+
+a.action.primary,
+.hero .action.primary {
+  color: #1a1a1a;
+}
+
+/* ----------------------------------------------------------
+   16. PAGINATION LINKS
+   ---------------------------------------------------------- */
+
+a.pagination-link {
+  border: 1px solid var(--sl-color-gray-5);
+  border-radius: 0.5rem;
+  transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+a.pagination-link:hover {
+  border-color: var(--sl-color-accent);
+  background: var(--sl-color-accent-low);
+}
+a.pagination-link:hover .link-title {
+  color: var(--sl-color-accent-high);
+}
+
+/* ----------------------------------------------------------
+   17. TABLE OF CONTENTS — right sidebar refinement
+   ---------------------------------------------------------- */
+
+starlight-toc a {
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+starlight-toc a:hover {
+  color: var(--sl-color-accent-high);
+}
+starlight-toc a[aria-current="true"] {
+  color: var(--sl-color-accent);
+  font-weight: 600;
+}
+
+/* ----------------------------------------------------------
+   18. SCROLLBAR — thin, dark, blends with theme
+   ---------------------------------------------------------- */
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--sl-color-gray-4);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--sl-color-gray-3);
+}
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--sl-color-gray-4) transparent;
+}
+
+/* ----------------------------------------------------------
+   19. TABS — Starlight tab component polish
+   ---------------------------------------------------------- */
+
+[role="tablist"] {
+  border-bottom-color: var(--sl-color-gray-5) !important;
+}
+
+[role="tab"] {
+  transition: color 0.15s ease, border-color 0.15s ease !important;
+}
+
+[role="tab"][aria-selected="true"] {
+  border-color: var(--sl-color-accent) !important;
+  color: var(--sl-color-accent-high) !important;
+}
+
+/* ----------------------------------------------------------
+   20. EDIT LINK — subtle
+   ---------------------------------------------------------- */
+
+a[data-edit-link] {
+  opacity: 0.6;
+  transition: opacity 0.15s ease;
+}
+a[data-edit-link]:hover {
+  opacity: 1;
+}
+
+/* ----------------------------------------------------------
+   21. MOBILE REFINEMENTS
+   ---------------------------------------------------------- */
+
+@media (max-width: 50rem) {
+  .sl-markdown-content h2 {
+    margin-top: 2rem;
+  }
+}

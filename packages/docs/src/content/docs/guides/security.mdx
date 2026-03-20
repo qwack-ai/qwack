@@ -1,0 +1,51 @@
+---
+title: Security
+description: Privacy guarantees and the server trust model
+---
+
+Qwack's security model: **your credentials stay on your machine. The conversation is the shared surface.**
+
+## The server trust model
+
+The Qwack server is a **relay**. It forwards messages between clients over TLS so everyone sees the same conversation. It never:
+
+- Executes code or accesses any filesystem
+- Stores API keys, env vars, or secrets
+- Runs an AI model or agent
+
+## What stays local vs. what's shared
+
+| Data                                              | Where it lives      | Shared via relay?                             |
+| ------------------------------------------------- | ------------------- | --------------------------------------------- |
+| API keys, env vars, `.env` files                  | Host's machine only | **Never**                                     |
+| Credentials and secrets                           | Host's machine only | **Never**                                     |
+| Filesystem access (reads, writes)                 | Host's machine only | **Never** — but tool _output_ is relayed      |
+| Prompts                                           | Host + server       | Yes — so collaborators see them               |
+| Agent responses                                   | Host + server       | Yes — so collaborators see them               |
+| Tool output (diffs, file contents, shell results) | Host + server       | Yes — so collaborators see what the agent did |
+| Collaborator names + presence                     | Server              | Yes                                           |
+
+**The relay sees conversation content (prompts, responses, tool output) because that's how collaboration works.** This is the same model as any hosted AI product — the difference is Qwack doesn't run the AI. The host does.
+
+---
+
+## Event storage
+
+Events are persisted to the `session_events` database table for session continuity and host transfer.
+
+- WebSocket connections use **WSS (TLS)** in production
+- Session data is **encrypted at rest** (AES-256, AWS-managed keys)
+- Session TTL auto-deletes events after N days (configurable, default 30)
+
+---
+
+## Security properties summary
+
+| Property                     | Status                                    |
+| ---------------------------- | ----------------------------------------- |
+| Credentials never leave host | ✅ API keys, env vars, secrets stay local |
+| AI runs on your machine      | ✅ Server never executes agents or models |
+| Transport encryption         | ✅ WSS (TLS) in production                |
+| Self-hosted option           | ✅ Run your own server for full control   |
+| Encryption at rest           | ✅ Encrypted at rest on all stored data  |
+| Auto-expire events           | ✅ Session events deleted after 30 days   |

@@ -1,0 +1,123 @@
+---
+title: Architecture
+description: How the host model, prompt relay, and data flow work
+---
+
+Qwack uses a **host model** — one collaborator runs the AI agent, everyone else participates through a relay.
+
+## The host model
+
+There are three components in a Qwack session:
+
+**Host** — One collaborator runs the OpenCode agent on their machine. They have full filesystem access and execute all code locally. API keys and credentials never leave the host's machine. Conversation content (prompts, responses, tool output) is relayed so collaborators can follow along.
+
+**Collaborators** — Everyone else runs Qwack in relay mode. Their TUI looks identical to the host's — same streaming output, tool calls, and file diffs — but prompts are routed through the Qwack server to the host's agent instead of running locally.
+
+**Qwack Server** — A lightweight WebSocket relay that forwards messages between participants. It never runs an AI agent, executes code, accesses filesystems, or stores API keys.
+
+## Host vs. non-host
+
+| Aspect | Host TUI | Non-Host TUI (relay mode) |
+| --- | --- | --- |
+| Agent execution | Local OpenCode agent runs | No local agent |
+| Prompt handling | Sent to local agent | Intercepted → sent to server |
+| Agent output | Rendered from local SSE events | Rendered from server WebSocket relay |
+| Tool execution | Local filesystem access | None — view only |
+| Sidebar | Presence + todos | Presence + todos (same) |
+| Code editing | Agent edits files directly | Must git pull / sync separately |
+
+The non-host TUI still starts OpenCode (for the file browser, settings, etc.) but the prompt input is intercepted before reaching the agent.
+
+---
+
+## Prompt flow: host → agent
+
+```text
+1. Host types prompt in Qwack TUI
+2. Prompt goes to local OpenCode agent (normal flow)
+3. Plugin captures prompt text, mirrors to server for broadcast
+4. All collaborators see the prompt in their TUI
+5. Agent processes prompt, output relayed to all
+```
+
+## Prompt flow: non-host → agent
+
+```text
+1. Non-host types prompt in Qwack TUI
+2. TUI intercepts — does NOT send to local agent
+3. TUI sends to server: { type: "prompt:request", content: "...", authorName: "sarah" }
+4. Server relays to host's plugin: { type: "prompt:execute", content: "...", requestedBy: "sarah" }
+5. Host's plugin injects prompt into local OpenCode agent
+6. Agent processes prompt in its EXISTING conversation context
+7. Output flows back: agent → plugin → server → all TUIs + web clients
+```
+
+## What the server sees vs. what stays on host
+
+| Data | Where it stays | What the server sees |
+| --- | --- | --- |
+| API keys | Host's machine only | Never |
+| Source code files | Host's machine only | Never |
+| Environment variables | Host's machine only | Never |
+| Tool execution (shell, file I/O) | Host's machine only | Never |
+| `.env`, credentials, secrets | Host's machine only | Never |
+| Prompt text | Host + server (relay) | Yes (for relay, TLS-protected) |
+| Agent output text | Host + server (relay) | Yes (for relay, TLS-protected) |
+| Collaborator names + presence | Server | Yes (routing metadata) |
+| Session metadata | Server | Yes |
+
+---
+
+## Host transfer
+
+The host role can be transferred deliberately or automatically:
+
+**Deliberate transfer** via `/qwack host <user>`:
+
+```text
+1. Current host runs: /qwack host bob
+2. Server broadcasts session:host_change to all clients
+3. Old host: switches to relay mode (conversation preserved)
+4. New host: creates local OpenCode session, receives context snapshot
+5. New host's agent gets full history injected into system prompt
+```
+
+**Auto-failover** on host disconnect:
+
+```text
+1. Host disconnects (crash, network, close terminal)
+2. Server broadcasts presence:leave, starts 5-second grace period
+3. Non-host prompts are buffered (up to 20 messages)
+4. If host reconnects within grace period: buffered prompts delivered
+5. If not: server auto-promotes next connected collaborator
+6. New host receives event history + snapshot
+```
+
+---
+
+## Offline sync
+
+When the host disconnects from the Qwack session but continues working locally:
+
+1. The plugin queues events (prompts, output, messages) to `~/.config/qwack/offline-queue.json`
+2. The TUI shows `⏳ N queued` while offline
+3. On reconnect, events are flushed to the server with `replayed: true` flag
+4. Collaborators see historical events merge into the timeline by timestamp
+
+Queue limit is 10MB — oldest events are dropped if exceeded.
+
+---
+
+## Tech stack
+
+| Layer | Technology |
+| --- | --- |
+| Runtime | Bun |
+| TUI | SolidJS (Ink-like terminal rendering) |
+| API | Hono |
+| Database | DynamoDB (production) / SQLite (local dev) |
+| Auth | OpenAuth (GitHub OAuth) |
+| Real-time | WebSockets + Yjs CRDT |
+| Infrastructure | AWS Fargate + ALB, deployed via SST |
+| Build | Bun workspaces + Turbo |
+| Validation | Zod |

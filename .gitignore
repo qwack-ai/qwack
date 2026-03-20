@@ -1,0 +1,38 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+*.tsbuildinfo
+.turbo/
+
+# SQLite databases
+*.db
+*.db-shm
+*.db-wal
+
+# Environment
+.env
+.env.local
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+*.swp
+*.swo
+*~
+
+# Backup files
+*.bak.*
+auth-storage.json
+start-qwack.sh
+packages/docs/.astro/
+
+# SST
+.sst/
+sst-env.d.ts
+**/sst-env.d.ts
+AGENTS.md
+.opencode/

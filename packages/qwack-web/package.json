@@ -1,0 +1,33 @@
+{
+  "name": "@qwack/web",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit",
+    "test": "bun test"
+  },
+  "dependencies": {
+    "@qwack/shared": "workspace:*",
+    "solid-js": "^1.9.0",
+    "@solidjs/router": "^0.15.0",
+    "yjs": "^13.6.0",
+    "y-websocket": "^2.0.0",
+    "y-codemirror.next": "^0.3.0",
+    "@codemirror/lang-markdown": "^6.0.0",
+    "codemirror": "^6.0.0",
+    "@codemirror/view": "^6.0.0",
+    "@codemirror/state": "^6.0.0",
+    "@xterm/xterm": "^5.5.0",
+    "@xterm/addon-fit": "^0.10.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.0",
+    "bun-types": "latest",
+    "vite": "^6.0.0",
+    "vite-plugin-solid": "^2.10.0"
+  }
+}
